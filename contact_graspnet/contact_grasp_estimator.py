@@ -214,6 +214,7 @@ class GraspEstimator:
                                             self._contact_grasp_cfg['TEST']['second_thres'] if 'second_thres' in self._contact_grasp_cfg['TEST'] else self._contact_grasp_cfg['TEST']['first_thres'], 
                                             with_replacement=self._contact_grasp_cfg['TEST']['with_replacement'])
 
+        # according to the loaded data, first_thres = 0.23 and second_thres = 0.18
         if not np.any(selection_idcs):
             selection_idcs=np.array([], dtype=np.int32)
 
@@ -245,6 +246,7 @@ class GraspEstimator:
             [np.ndarray, np.ndarray, np.ndarray, np.ndarray] -- pred_grasps_cam, scores, contact_pts, gripper_openings
         """
 
+        # Create empty outputs
         pred_grasps_cam, scores, contact_pts, gripper_openings = {}, {}, {}, {}
 
         # Predict grasps in local regions or full pc
@@ -304,16 +306,21 @@ class GraspEstimator:
         Returns:
             [np.ndarray] -- Indices of selected contact_pts 
         """
+        # num_grasps defines the desired number of to-be-output grasp poses
 
         grasp_conf = contact_conf.squeeze()
         contact_pts = contact_pts.squeeze()
 
         conf_idcs_greater_than = np.nonzero(grasp_conf > first_thres)[0]
+        # print("size of conf_idcs_greater_than: ", conf_idcs_greater_than.shape)
         _, center_indexes = farthest_points(contact_pts[conf_idcs_greater_than,:3], np.minimum(max_farthest_points, len(conf_idcs_greater_than)), distance_by_translation_point, return_center_indexes = True)
 
-        remaining_confidences = np.setdiff1d(np.arange(len(grasp_conf)), conf_idcs_greater_than[center_indexes])
+        # Selecting and Sorting all the grasps with confidances under the first_thres
+        remaining_confidences = np.setdiff1d(np.arange(len(grasp_conf)), conf_idcs_greater_than[center_indexes])    # remaining_confidences are indices
         sorted_confidences = np.argsort(grasp_conf)[::-1]
+        print(sorted_confidences)
         mask = np.in1d(sorted_confidences, remaining_confidences)
+        # Getting indices of remaining grasps in sorted order
         sorted_remaining_confidence_idcs = sorted_confidences[mask]
         
         if with_replacement:
@@ -325,7 +332,9 @@ class GraspEstimator:
             selection_idcs = np.array(selection_idcs)
 
         else:
+            # See how many poses do we still need, and from sorted_remaining_confidence_idcs select the highest few ones to reach the requirement
             remaining_idcs = sorted_remaining_confidence_idcs[:num_grasps-len(conf_idcs_greater_than[center_indexes])]
+            # Filter the poses selected in last step with the second threshold 
             remaining_conf_idcs_greater_than = np.nonzero(grasp_conf[remaining_idcs] > second_thres)[0]
             selection_idcs = np.union1d(conf_idcs_greater_than[center_indexes], remaining_idcs[remaining_conf_idcs_greater_than])
         return selection_idcs

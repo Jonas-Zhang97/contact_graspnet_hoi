@@ -123,7 +123,7 @@ def farthest_points(data, nclusters, dist_func, return_center_indexes=False, ret
       Args:
         data: numpy array of the data points.
         nclusters: int, number of clusters.
-        dist_dunc: distance function that is used to compare two data points.
+        dist_func: distance function that is used to compare two data points.
         return_center_indexes: bool, If True, returns the indexes of the center of 
           clusters.
         return_distances: bool, If True, return distances of each point from centers.

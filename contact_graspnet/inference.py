@@ -37,6 +37,8 @@ def inference(global_config, checkpoint_dir, input_paths, K=None, local_regions=
     
     # Build the model
     grasp_estimator = GraspEstimator(global_config)
+    # for testing
+    # print(grasp_estimator._contact_grasp_cfg)
     grasp_estimator.build_network()
 
     # Add ops to save and restore all the variables.
@@ -51,10 +53,12 @@ def inference(global_config, checkpoint_dir, input_paths, K=None, local_regions=
     # Load weights
     grasp_estimator.load_weights(sess, saver, checkpoint_dir, mode='test')
     
+    # Create a path to save the result
     os.makedirs('results', exist_ok=True)
 
     # Process example test scenes
     for p in glob.glob(input_paths):
+        # p is path in input_paths
         print('Loading ', p)
 
         pc_segments = {}
@@ -87,7 +91,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--ckpt_dir', default='checkpoints/scene_test_2048_bs3_hor_sigma_001', help='Log dir [default: checkpoints/scene_test_2048_bs3_hor_sigma_001]')
-    parser.add_argument('--np_path', default='test_data/7.npy', help='Input data: npz/npy file with keys either "depth" & camera matrix "K" or just point cloud "pc" in meters. Optionally, a 2D "segmap"')
+    parser.add_argument('--np_path', default='depth_image_data/cup.npy', help='Input data: npz/npy file with keys either "depth" & camera matrix "K" or just point cloud "pc" in meters. Optionally, a 2D "segmap"')
     parser.add_argument('--png_path', default='', help='Input data: depth map png in meters')
     parser.add_argument('--K', default=None, help='Flat Camera Matrix, pass as "[fx, 0, cx, 0, fy, cy, 0, 0 ,1]"')
     parser.add_argument('--z_range', default=[0.2,1.8], help='Z value threshold to crop the input point cloud')
