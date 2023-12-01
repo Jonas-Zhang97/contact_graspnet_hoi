@@ -308,6 +308,9 @@ class GraspEstimator:
         """
         # num_grasps defines the desired number of to-be-output grasp poses
 
+        first_thres = 0.2
+        second_thres = 0.1
+
         grasp_conf = contact_conf.squeeze()
         contact_pts = contact_pts.squeeze()
 
@@ -318,7 +321,7 @@ class GraspEstimator:
         # Selecting and Sorting all the grasps with confidances under the first_thres
         remaining_confidences = np.setdiff1d(np.arange(len(grasp_conf)), conf_idcs_greater_than[center_indexes])    # remaining_confidences are indices
         sorted_confidences = np.argsort(grasp_conf)[::-1]
-        print(sorted_confidences)
+        # print(sorted_confidences)
         mask = np.in1d(sorted_confidences, remaining_confidences)
         # Getting indices of remaining grasps in sorted order
         sorted_remaining_confidence_idcs = sorted_confidences[mask]
