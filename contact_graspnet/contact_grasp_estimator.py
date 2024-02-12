@@ -308,8 +308,8 @@ class GraspEstimator:
         """
         # num_grasps defines the desired number of to-be-output grasp poses
 
-        first_thres = 0.2
-        second_thres = 0.1
+        first_thres = 0.1
+        second_thres = 0.05
 
         grasp_conf = contact_conf.squeeze()
         contact_pts = contact_pts.squeeze()
